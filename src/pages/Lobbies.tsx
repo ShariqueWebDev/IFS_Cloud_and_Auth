@@ -23,7 +23,7 @@ function LobbyCard({ lobby }: { lobby: Lobby }) {
 
   return (
     <div className="bg-white rounded-md p-5 shadow-sm border-t-3 border-blue-600 cursor-pointer hover:shadow-md transition-shadow">
-      <h3 className="text-sm font-bold text-gray-800 uppercase mb-2">
+      <h3 className="text-sm line-clamp-1 font-bold text-gray-800 uppercase mb-2">
         {title}
       </h3>
       {description && (
@@ -130,11 +130,11 @@ function Lobbies() {
           filtered.map((lobby, index) => (
             <LobbyCard key={index} lobby={lobby} />
           ))
-        ) : (
+        ) : !isFetching && !hasMore ? (
           <p className="text-center text-gray-400 col-span-3 py-10">
             No lobbies found
           </p>
-        )}
+        ) : null}
       </div>
 
       {/* Infinite scroll trigger */}
