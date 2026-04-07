@@ -15,36 +15,44 @@ interface LobbyResponse {
   "@odata.count"?: number;
 }
 
-interface LobbyParams {
-  top?: number;
-  skip?: number;
+export interface KpiData {
+  Id: string;
+  Title: string;
+  Measure: number;
+  Target: number;
+  Benchmark: number;
+  Description: string;
+  Benefits: string;
+  [key: string]: unknown;
+}
+
+interface BulkKpiResponse {
+  kpis: KpiData[];
 }
 
 export const lobbyApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getLobbies: builder.query<LobbyResponse, LobbyParams>({
-      query: (params) => ({
-        url: "/api/lobbies",
-        params: {
-          top: params.top ?? 9,
-          skip: params.skip ?? 0,
-        },
-      }),
-      // Merge new pages into existing data
-      serializeQueryArgs: ({ endpointName }) => endpointName,
-      merge: (currentCache, newItems, { arg }) => {
-        if (arg.skip === 0) {
-          return newItems;
-        }
-        currentCache.value.push(...newItems.value);
-        currentCache["@odata.count"] = newItems["@odata.count"];
-      },
-      forceRefetch: ({ currentArg, previousArg }) => {
-        return currentArg?.skip !== previousArg?.skip;
-      },
+    getLobbies: builder.query<LobbyResponse, void>({
+      query: () => "/api/lobbies",
       providesTags: ["Lobbies"],
+    }),
+
+    getLobbyPage: builder.mutation<unknown, string>({
+      query: (pageId) => `/api/lobbies/${encodeURIComponent(pageId)}/page`,
+    }),
+
+    getBulkKpis: builder.mutation<BulkKpiResponse, string[]>({
+      query: (ids) => ({
+        url: "/api/kpi/bulk",
+        method: "POST",
+        body: { ids },
+      }),
     }),
   }),
 });
 
-export const { useGetLobbiesQuery } = lobbyApi;
+export const {
+  useGetLobbiesQuery,
+  useGetLobbyPageMutation,
+  useGetBulkKpisMutation,
+} = lobbyApi;

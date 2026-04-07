@@ -1,11 +1,15 @@
 import { api } from "./api";
 
-interface LoginRequest {
-  username: string;
-  password: string;
+interface LoginUrlResponse {
+  authUrl: string;
 }
 
-interface LoginResponse {
+interface CallbackRequest {
+  code: string;
+  state: string;
+}
+
+interface CallbackResponse {
   message: string;
   token_type: string;
   expires_in: number;
@@ -26,11 +30,14 @@ interface AuthStatus {
 
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation<LoginResponse, LoginRequest>({
-      query: (credentials) => ({
-        url: "/auth/login",
-        method: "POST",
-        body: credentials,
+    getLoginUrl: builder.query<LoginUrlResponse, void>({
+      query: () => "/auth/login",
+    }),
+
+    handleCallback: builder.mutation<CallbackResponse, CallbackRequest>({
+      query: ({ code, state }) => ({
+        url: `/auth/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`,
+        method: "GET",
       }),
       invalidatesTags: ["Auth"],
     }),
@@ -53,7 +60,10 @@ export const authApi = api.injectEndpoints({
       providesTags: ["Auth"],
     }),
 
-    refreshToken: builder.mutation<{ message: string; expires_in: number }, void>({
+    refreshToken: builder.mutation<
+      { message: string; expires_in: number },
+      void
+    >({
       query: () => ({
         url: "/auth/refresh",
         method: "POST",
@@ -63,7 +73,8 @@ export const authApi = api.injectEndpoints({
 });
 
 export const {
-  useLoginMutation,
+  useGetLoginUrlQuery,
+  useHandleCallbackMutation,
   useLogoutMutation,
   useGetUserInfoQuery,
   useGetAuthStatusQuery,

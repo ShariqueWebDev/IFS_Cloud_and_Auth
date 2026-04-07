@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetLobbiesQuery } from "../services/lobbyApi";
 
@@ -12,17 +12,20 @@ interface Lobby {
   [key: string]: unknown;
 }
 
-const PAGE_SIZE = 9;
-
 function LobbyCard({ lobby }: { lobby: Lobby }) {
-  const title =
+  const navigate = useNavigate();
+  const rawTitle =
     lobby.Description || lobby.PageTitle || lobby.PoId || "Untitled Lobby";
+  const title = rawTitle.replace(/^LOBBY\s*-\s*/i, "");
   const description = lobby.DescriptiveText || "";
   const keywords = lobby.Keywords || "";
   const author = lobby.Author || "";
 
   return (
-    <div className="bg-white rounded-md p-5 shadow-sm border-t-3 border-blue-600 cursor-pointer hover:shadow-md transition-shadow">
+    <div
+      onClick={() => navigate(`/lobbies/${encodeURIComponent(lobby.PoId || "")}`)}
+      className="bg-white rounded-md p-5 shadow-sm border-t-3 border-blue-600 cursor-pointer hover:shadow-md transition-shadow"
+    >
       <h3 className="text-sm line-clamp-1 font-bold text-gray-800 uppercase mb-2">
         {title}
       </h3>
@@ -40,19 +43,13 @@ function LobbyCard({ lobby }: { lobby: Lobby }) {
 }
 
 function Lobbies() {
-  const [skip, setSkip] = useState(0);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
-  const loaderRef = useRef<HTMLDivElement>(null);
 
-  const { data, isLoading, isFetching } = useGetLobbiesQuery({
-    top: PAGE_SIZE,
-    skip,
-  });
+  const { data, isLoading } = useGetLobbiesQuery();
 
   const lobbies = data?.value ?? [];
   const totalCount = data?.["@odata.count"] ?? 0;
-  const hasMore = lobbies.length < totalCount;
 
   const filtered = search
     ? lobbies.filter((lobby) => {
@@ -70,27 +67,7 @@ function Lobbies() {
       })
     : lobbies;
 
-  const handleObserver = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const target = entries[0];
-      if (target.isIntersecting && hasMore && !isFetching) {
-        setSkip((prev) => prev + PAGE_SIZE);
-      }
-    },
-    [hasMore, isFetching],
-  );
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(handleObserver, {
-      rootMargin: "200px",
-    });
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
-    }
-    return () => observer.disconnect();
-  }, [handleObserver]);
-
-  if (isLoading && skip === 0)
+  if (isLoading)
     return <p className="text-center mt-12 text-lg">Loading lobbies...</p>;
 
   return (
@@ -130,18 +107,10 @@ function Lobbies() {
           filtered.map((lobby, index) => (
             <LobbyCard key={index} lobby={lobby} />
           ))
-        ) : !isFetching && !hasMore ? (
+        ) : (
           <p className="text-center text-gray-400 col-span-3 py-10">
             No lobbies found
           </p>
-        ) : null}
-      </div>
-
-      {/* Infinite scroll trigger */}
-      <div ref={loaderRef} className="text-center py-6">
-        {isFetching && <p className="text-gray-500 text-sm">Loading more...</p>}
-        {!hasMore && lobbies.length > 0 && (
-          <p className="text-gray-400 text-sm">All lobbies loaded</p>
         )}
       </div>
     </div>
