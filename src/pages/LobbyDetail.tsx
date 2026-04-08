@@ -166,14 +166,19 @@ function LobbyDetail() {
     const result: Array<{ counter: CounterElement; kpiId: string | null }> = [];
     for (const g of groups) {
       for (const c of g.Elements?.Counter ?? []) {
-        result.push({ counter: c, kpiId: parseKpiId(c.ProjectionDataSource?.Filter) });
+        result.push({
+          counter: c,
+          kpiId: parseKpiId(c.ProjectionDataSource?.Filter),
+        });
       }
     }
     return result;
   }, [groups]);
 
   useEffect(() => {
-    const ids = [...new Set(allCounters.map((c) => c.kpiId).filter(Boolean))] as string[];
+    const ids = [
+      ...new Set(allCounters.map((c) => c.kpiId).filter(Boolean)),
+    ] as string[];
     if (ids.length > 0) fetchKpis(ids);
   }, [allCounters, fetchKpis]);
 
@@ -204,15 +209,22 @@ function LobbyDetail() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <p className="text-gray-500 text-lg mb-4">Lobby not found</p>
-        <button onClick={() => navigate("/lobbies")} className="px-6 py-2 bg-blue-600 text-white rounded text-sm font-semibold cursor-pointer hover:bg-blue-700">
+        <button
+          onClick={() => navigate("/lobbies")}
+          className="px-6 py-2 bg-blue-600 text-white rounded text-sm font-semibold cursor-pointer hover:bg-blue-700"
+        >
           Back to Lobbies
         </button>
       </div>
     );
   }
 
-  const title = (lobby.Description || lobby.PageTitle || lobby.PoId || "Untitled")
-    .replace(/^LOBBY\s*-\s*/i, "");
+  const title = (
+    lobby.Description ||
+    lobby.PageTitle ||
+    lobby.PoId ||
+    "Untitled"
+  ).replace(/^LOBBY\s*-\s*/i, "");
 
   const loading = pageLoading || kpisLoading;
 
@@ -221,10 +233,17 @@ function LobbyDetail() {
       {/* Header */}
       <header className="flex justify-between items-center px-8 py-4 bg-blue-600 text-white">
         <div className="flex items-center gap-3">
-          <img src="/ifs_logo_name.svg" alt="IFS Logo" className="h-8 brightness-0 invert" />
+          <img
+            src="/ifs_logo_name.svg"
+            alt="IFS Logo"
+            className="h-8 brightness-0 invert"
+          />
           <h1 className="text-xl font-semibold truncate max-w-150">{title}</h1>
         </div>
-        <button onClick={() => navigate("/lobbies")} className="px-5 py-2 bg-white text-sm text-blue-600 rounded font-semibold hover:bg-gray-100 cursor-pointer shrink-0">
+        <button
+          onClick={() => navigate("/lobbies")}
+          className="px-5 py-2 bg-white text-sm text-blue-600 rounded font-semibold hover:bg-gray-100 cursor-pointer shrink-0"
+        >
           Back to Lobbies
         </button>
       </header>
@@ -242,7 +261,11 @@ function LobbyDetail() {
               {group.IsSeparator && group.SeparatorTitle && (
                 <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
                   <span className="inline-block w-4 h-4">
-                    <svg viewBox="0 0 16 16" fill="currentColor" className="text-gray-400">
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="currentColor"
+                      className="text-gray-400"
+                    >
                       <rect x="0" y="0" width="7" height="7" rx="1" />
                       <rect x="9" y="0" width="7" height="7" rx="1" />
                       <rect x="0" y="9" width="7" height="7" rx="1" />
@@ -257,12 +280,17 @@ function LobbyDetail() {
               {group.Elements?.Image && group.Elements.Image.length > 0 && (
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   {group.Elements.Image.map((img) => (
-                    <div key={img.ID} className="rounded-lg overflow-hidden shadow-sm h-52 bg-gray-200">
+                    <div
+                      key={img.ID}
+                      className="rounded-lg overflow-hidden shadow-sm h-52 bg-gray-200"
+                    >
                       <img
                         src={`${API_URL}/api/ifs-image?path=${encodeURIComponent(img.Image)}`}
                         alt={img.Name}
                         className="w-full h-full object-cover"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
                       />
                     </div>
                   ))}
@@ -271,16 +299,22 @@ function LobbyDetail() {
 
               {/* KPI Counter Cards */}
               {group.Elements?.Counter && group.Elements.Counter.length > 0 && (
-                <div className={`grid gap-4 grid-cols-${Math.min(group.Elements.Counter.length, 6)}`}>
+                <div className={`grid gap-4 grid-cols-6`}>
                   {[...group.Elements.Counter]
                     .sort((a, b) => a.Column - b.Column)
                     .map((counter, i) => {
-                      const kpiId = parseKpiId(counter.ProjectionDataSource?.Filter);
+                      const kpiId = parseKpiId(
+                        counter.ProjectionDataSource?.Filter,
+                      );
                       return (
                         <KpiCard
                           key={i}
                           counter={counter}
-                          measure={kpiId && kpiMap[kpiId] !== undefined ? kpiMap[kpiId] : null}
+                          measure={
+                            kpiId && kpiMap[kpiId] !== undefined
+                              ? kpiMap[kpiId]
+                              : null
+                          }
                         />
                       );
                     })}
@@ -295,12 +329,16 @@ function LobbyDetail() {
                       key={text.ID}
                       onClick={() => {
                         if (text.WebUrl?.startsWith("lobby/")) {
-                          navigate(`/lobbies/${text.WebUrl.replace("lobby/", "")}`);
+                          navigate(
+                            `/lobbies/${text.WebUrl.replace("lobby/", "")}`,
+                          );
                         }
                       }}
                       className="bg-indigo-900 rounded-lg shadow-sm p-8 text-center cursor-pointer hover:bg-indigo-800 transition-colors"
                     >
-                      <p className="text-sm font-bold text-white uppercase">{text.BodyText}</p>
+                      <p className="text-sm font-bold text-white uppercase">
+                        {text.BodyText}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -311,28 +349,52 @@ function LobbyDetail() {
           /* Fallback - no page data, show lobby properties */
           <div>
             <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-l-4 border-blue-600">
-              <h2 className="text-2xl font-bold text-gray-800 uppercase">{title}</h2>
+              <h2 className="text-2xl font-bold text-gray-800 uppercase">
+                {title}
+              </h2>
               {lobby.DescriptiveText && (
-                <p className="text-gray-600 mt-2">{String(lobby.DescriptiveText)}</p>
+                <p className="text-gray-600 mt-2">
+                  {String(lobby.DescriptiveText)}
+                </p>
               )}
               {lobby.Keywords && (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {String(lobby.Keywords).split(",").map((kw, i) => (
-                    <span key={i} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
-                      {kw.trim()}
-                    </span>
-                  ))}
+                  {String(lobby.Keywords)
+                    .split(",")
+                    .map((kw, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium"
+                      >
+                        {kw.trim()}
+                      </span>
+                    ))}
                 </div>
               )}
             </div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Lobby Properties</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              Lobby Properties
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {Object.entries(lobby)
-                .filter(([key, value]) => value !== null && value !== undefined && value !== "" && key !== "@odata.etag")
+                .filter(
+                  ([key, value]) =>
+                    value !== null &&
+                    value !== undefined &&
+                    value !== "" &&
+                    key !== "@odata.etag",
+                )
                 .map(([key, value]) => (
-                  <div key={key} className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">{key}</p>
-                    <p className="text-sm text-gray-800 break-all">{String(value)}</p>
+                  <div
+                    key={key}
+                    className="bg-white rounded-lg shadow-sm p-4 border border-gray-100"
+                  >
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                      {key}
+                    </p>
+                    <p className="text-sm text-gray-800 break-all">
+                      {String(value)}
+                    </p>
                   </div>
                 ))}
             </div>
