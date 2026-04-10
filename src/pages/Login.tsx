@@ -24,7 +24,7 @@ function Login() {
         </h1>
         {isError && (
           <p className="text-red-500 text-sm mb-4">
-            Server se connect nahi ho paya.{" "}
+            Unable to connect to server.{" "}
             <button onClick={refetch} className="underline font-semibold">
               Retry
             </button>
@@ -39,7 +39,7 @@ function Login() {
         </button>
         {isLoading && (
           <p className="text-gray-400 text-xs mt-3">
-            Server start ho raha hai, thoda wait karo...
+            Server is starting up, please wait...
           </p>
         )}
       </div>

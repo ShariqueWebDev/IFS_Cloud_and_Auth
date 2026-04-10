@@ -187,9 +187,9 @@ function LobbyDetail() {
     const map: Record<string, number> = {};
     for (const item of kpisData?.kpis ?? []) {
       if (!item) continue;
-      const arr = (item as Record<string, unknown>).value;
-      if (Array.isArray(arr) && arr.length > 0) {
-        map[arr[0].Id] = arr[0].Measure;
+      const kpi = item as { Id: string; Measure: number };
+      if (kpi.Id && kpi.Measure !== undefined) {
+        map[kpi.Id] = kpi.Measure;
       }
     }
     return map;
